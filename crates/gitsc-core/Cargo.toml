@@ -1,0 +1,14 @@
+[package]
+name = "gitsc-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "gitsc 的 Git 数据层：命令行调用、porcelain 解析、提交图布局与差异解析"
+
+[dependencies]
+anyhow.workspace = true
+dirs.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
