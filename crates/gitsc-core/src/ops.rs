@@ -560,6 +560,11 @@ mod tests {
     use super::*;
     use std::path::PathBuf;
 
+    /// Windows 上 core.autocrlf 可能把工作区文件换成 CRLF，断言前统一成 LF。
+    fn read_text(path: impl AsRef<std::path::Path>) -> String {
+        std::fs::read_to_string(path).unwrap().replace("\r\n", "\n")
+    }
+
     fn temp_repo(name: &str) -> (PathBuf, Git) {
         let dir = std::env::temp_dir().join(format!("gitsc-ops-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
@@ -568,6 +573,7 @@ mod tests {
         let mut git = Git::open(&dir).unwrap();
         git.run_ok(&["config", "user.email", "test@example.com"]).unwrap();
         git.run_ok(&["config", "user.name", "gitsc test"]).unwrap();
+        git.run_ok(&["config", "core.autocrlf", "false"]).unwrap();
         (dir, git)
     }
 
@@ -588,8 +594,7 @@ mod tests {
         assert!(doc.files.iter().any(|f| f.path() == "a.txt"));
 
         stash_apply(&mut git, 0, false).unwrap();
-        let content = std::fs::read_to_string(dir.join("a.txt")).unwrap();
-        assert_eq!(content, "one\ntwo\n");
+        assert_eq!(read_text(dir.join("a.txt")), "one\ntwo\n");
         let _ = std::fs::remove_dir_all(&dir);
     }
 
@@ -641,8 +646,8 @@ mod tests {
         std::fs::write(a.join("local.txt"), "keep me\n").unwrap();
         pull_from(&mut git, "origin", "main", false).unwrap();
 
-        assert_eq!(std::fs::read_to_string(a.join("local.txt")).unwrap(), "keep me\n");
-        assert_eq!(std::fs::read_to_string(a.join("f.txt")).unwrap(), "one\ntwo\n");
+        assert_eq!(read_text(a.join("local.txt")), "keep me\n");
+        assert_eq!(read_text(a.join("f.txt")), "one\ntwo\n");
         let _ = std::fs::remove_dir_all(&base);
     }
 

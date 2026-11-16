@@ -39,7 +39,7 @@ jobs:
         shell: pwsh
         run: |
           choco install nsis --no-progress -y
-          Add-Content $env:GITHUB_PATH "$env:ProgramFiles(x86)\NSIS"
+          Add-Content $env:GITHUB_PATH "${env:ProgramFiles(x86)}\NSIS"
 
       - name: Build installer
         shell: pwsh
