@@ -7,6 +7,9 @@
 
 Unicode true
 
+; 相对路径（../dist、../design）以 installer/ 为基准：
+; 调用方请先 cd installer 再执行 makensis（scripts/package-windows.sh 与 CI 都这么做）。
+
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
