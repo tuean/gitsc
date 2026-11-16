@@ -45,8 +45,9 @@ jobs:
         shell: pwsh
         run: |
           $version = (Select-String -Path Cargo.toml -Pattern '^version = "(.*)"').Matches[0].Groups[1].Value
+          $root = (Get-Location).Path
           Push-Location installer
-          makensis /DAPP_VERSION=$version gitsc.nsi
+          makensis /DAPP_VERSION=$version /DDIST_ROOT="$root" gitsc.nsi
           Pop-Location
 
       - uses: actions/upload-artifact@v4

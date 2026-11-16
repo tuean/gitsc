@@ -7,8 +7,11 @@
 
 Unicode true
 
-; 相对路径（../dist、../design）以 installer/ 为基准：
-; 调用方请先 cd installer 再执行 makensis（scripts/package-windows.sh 与 CI 都这么做）。
+; 资源路径用 DIST_ROOT 指定仓库根目录：NSIS 在 Windows 上按当前目录解析相对路径、
+; POSIX 版按脚本目录解析，统一传绝对路径最稳。
+!ifndef DIST_ROOT
+  !define DIST_ROOT ".."
+!endif
 
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
@@ -26,14 +29,14 @@ Unicode true
 
 Name "${APP_NAME} ${APP_VERSION}"
 BrandingText "${APP_NAME} ${APP_VERSION}"
-OutFile "../dist/gitsc-${APP_VERSION}-windows-x64-setup.exe"
+OutFile "${DIST_ROOT}/dist/gitsc-${APP_VERSION}-windows-x64-setup.exe"
 InstallDir "$PROGRAMFILES64\${APP_NAME}"
 InstallDirRegKey HKLM "Software\${APP_ID}" "InstallDir"
 RequestExecutionLevel admin
 SetCompressor /SOLID lzma
 
-!define MUI_ICON "../design/gitsc.ico"
-!define MUI_UNICON "../design/gitsc.ico"
+!define MUI_ICON "${DIST_ROOT}/design/gitsc.ico"
+!define MUI_UNICON "${DIST_ROOT}/design/gitsc.ico"
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN "$INSTDIR\${APP_EXE}"
 !define MUI_FINISHPAGE_RUN_TEXT "运行 gitsc"
@@ -55,8 +58,8 @@ Section "gitsc" SecMain
   SetShellVarContext all
   SetOutPath "$INSTDIR"
 
-  File "/oname=${APP_EXE}" "../dist/gitsc-windows-x86_64.exe"
-  File "/oname=gitsc.ico" "../design/gitsc.ico"
+  File "/oname=${APP_EXE}" "${DIST_ROOT}/dist/gitsc-windows-x86_64.exe"
+  File "/oname=gitsc.ico" "${DIST_ROOT}/design/gitsc.ico"
 
   WriteUninstaller "$INSTDIR\uninstall.exe"
 

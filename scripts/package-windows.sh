@@ -9,7 +9,8 @@ VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)"
 
 ./scripts/build-windows.sh
 
-( cd installer && makensis -DAPP_VERSION="$VERSION" gitsc.nsi )
+ROOT="$(pwd)"
+( cd installer && makensis -DAPP_VERSION="$VERSION" -DDIST_ROOT="$ROOT" gitsc.nsi )
 
 echo
 ls -lh "dist/gitsc-windows-x86_64.exe" "dist/gitsc-${VERSION}-windows-x64-setup.exe"
