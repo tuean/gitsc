@@ -13,6 +13,13 @@ Unicode true
   !define DIST_ROOT ".."
 !endif
 
+; 路径分隔符必须跟宿主一致：Windows 的 makensis 对混用 `/` 的绝对路径会找不到文件。
+!ifdef NSIS_WIN32_MAKENSIS
+  !define SEP "\"
+!else
+  !define SEP "/"
+!endif
+
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
@@ -29,14 +36,14 @@ Unicode true
 
 Name "${APP_NAME} ${APP_VERSION}"
 BrandingText "${APP_NAME} ${APP_VERSION}"
-OutFile "${DIST_ROOT}/dist/gitsc-${APP_VERSION}-windows-x64-setup.exe"
+OutFile "${DIST_ROOT}${SEP}dist${SEP}gitsc-${APP_VERSION}-windows-x64-setup.exe"
 InstallDir "$PROGRAMFILES64\${APP_NAME}"
 InstallDirRegKey HKLM "Software\${APP_ID}" "InstallDir"
 RequestExecutionLevel admin
 SetCompressor /SOLID lzma
 
-!define MUI_ICON "${DIST_ROOT}/design/gitsc.ico"
-!define MUI_UNICON "${DIST_ROOT}/design/gitsc.ico"
+!define MUI_ICON "${DIST_ROOT}${SEP}design${SEP}gitsc.ico"
+!define MUI_UNICON "${DIST_ROOT}${SEP}design${SEP}gitsc.ico"
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_RUN "$INSTDIR\${APP_EXE}"
 !define MUI_FINISHPAGE_RUN_TEXT "运行 gitsc"
@@ -58,8 +65,8 @@ Section "gitsc" SecMain
   SetShellVarContext all
   SetOutPath "$INSTDIR"
 
-  File "/oname=${APP_EXE}" "${DIST_ROOT}/dist/gitsc-windows-x86_64.exe"
-  File "/oname=gitsc.ico" "${DIST_ROOT}/design/gitsc.ico"
+  File "/oname=${APP_EXE}" "${DIST_ROOT}${SEP}dist${SEP}gitsc-windows-x86_64.exe"
+  File "/oname=gitsc.ico" "${DIST_ROOT}${SEP}design${SEP}gitsc.ico"
 
   WriteUninstaller "$INSTDIR\uninstall.exe"
 

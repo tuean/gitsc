@@ -44,6 +44,7 @@ jobs:
       - name: Build installer
         shell: pwsh
         run: |
+          Write-Host "cwd=$(Get-Location)"; Get-ChildItem -Recurse dist | Select-Object FullName,Length
           $version = (Select-String -Path Cargo.toml -Pattern '^version = "(.*)"').Matches[0].Groups[1].Value
           $root = (Get-Location).Path
           Push-Location installer
