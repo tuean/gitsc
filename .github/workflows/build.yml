@@ -61,14 +61,6 @@ jobs:
             dist/gitsc-windows-x86_64.exe
             dist/gitsc-*-windows-x64-setup.exe
 
-      - name: Attach to release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            dist/gitsc-windows-x86_64.exe
-            dist/gitsc-*-windows-x64-setup.exe
-
   macos:
     name: macOS (app bundle)
     runs-on: macos-latest
@@ -82,17 +74,33 @@ jobs:
         run: ./scripts/bundle-macos.sh
 
       - name: Zip app
+        env:
+          ARCH: ${{ runner.arch == 'ARM64' && 'aarch64' || 'x86_64' }}
         run: |
           mkdir -p dist
-          ditto -c -k --sequesterRsrc --keepParent target/gitsc.app "dist/gitsc-macos-${{ runner.arch }}.zip"
+          ditto -c -k --sequesterRsrc --keepParent target/gitsc.app "dist/gitsc-macos-${ARCH}.zip"
 
       - uses: actions/upload-artifact@v4
         with:
           name: gitsc-macos
           path: dist/gitsc-macos-*.zip
 
-      - name: Attach to release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
+  release:
+    name: Publish release
+    needs: [windows, macos]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
         with:
-          files: dist/gitsc-macos-*.zip
+          path: dist
+          merge-multiple: true
+
+      - name: List assets
+        run: ls -lh dist
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
